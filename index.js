@@ -11,27 +11,29 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-app.use(express.urlencoded({ extended: true }));
-
 const form = `
-<form method="post" action="/">
+<form method="POST" action="/prompt">
 <textarea name="prompt" id="prompt"></textarea>
 <button type="submit">Generate</button>
 </form>
 
 `;
 
+app.use(express.urlencoded({ extended: true }));
+
 app.get("/prompt", async (req, res) => {
   res.send(form);
 });
 
 app.post("/prompt", async (req, res) => {
-  const prompt = "Write a story about a AI and magic";
+  let { prompt } = req.body;
+  prompt = prompt + ". data will be in json stringify version";
 
   const result = await model.generateContent(prompt);
   const response = await result.response;
   const text = response.text();
-  res.send({ data: text, status: 200 });
+  const rsp = text.split("json\n")[1].split("```")[0];
+  res.send({ data: JSON.parse(rsp), status: 200 });
 });
 
 app.get("/", (req, res) => {
