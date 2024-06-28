@@ -11,7 +11,21 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+app.use(express.urlencoded({ extended: true }));
+
+const form = `
+<form method="post" action="/">
+<textarea name="prompt" id="prompt"></textarea>
+<button type="submit">Generate</button>
+</form>
+
+`;
+
 app.get("/prompt", async (req, res) => {
+  res.send(form);
+});
+
+app.post("/prompt", async (req, res) => {
   const prompt = "Write a story about a AI and magic";
 
   const result = await model.generateContent(prompt);
